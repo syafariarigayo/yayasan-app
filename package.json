@@ -49,16 +49,6 @@
     "analyze": "source-map-explorer 'build/static/js/*.js'",
     "deploy": "npm run build && echo 'Ready to deploy!'"
   },
-  "extends": [
-    "react-app",
-    "react-app/jest"
-  ],
-  "rules": {
-    "no-restricted-globals": "off",
-    "react-hooks/exhaustive-deps": "warn",
-    "react/jsx-no-target-blank": "warn"
-  }
-  },
   "browserslist": {
     "production": [
       ">0.2%",
@@ -79,16 +69,13 @@
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
-  }
+  },
   "eslintConfig": {
     "extends": ["react-app", "react-app/jest"],
     "rules": {
-    "no-restricted-globals": "off"
+      "no-restricted-globals": "off",
+      "react-hooks/exhaustive-deps": "warn",
+      "react/jsx-no-target-blank": "warn"
+    }
   }
-}
-
-
-
-
-
 }
