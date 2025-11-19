@@ -17,11 +17,11 @@ const DashboardLayout = ({ children }) => {
     window.location.href = "/login";
   };
 
-  // MENU ITEMS
+  // MENU ITEMS - SUDAH DIHAPUS "Tambah Karyawan"
   const menuItems = [
     { path: "/", label: "Dashboard", icon: "📊" },
     { path: "/data-karyawan", label: "Data Karyawan", icon: "👥" },
-    { path: "/tambah-karyawan", label: "Tambah Karyawan", icon: "➕" },
+    // ❌ MENU "Tambah Karyawan" SUDAH DIHAPUS DARI SINI
     { path: "/magang", label: "Management Magang", icon: "📚" },
     { path: "/penilaian-kinerja", label: "Penilaian Kinerja", icon: "⭐" },
     { path: "/import-absensi", label: "Import Absensi", icon: "📥" },
