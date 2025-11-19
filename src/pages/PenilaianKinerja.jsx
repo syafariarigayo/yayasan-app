@@ -114,7 +114,7 @@ export default function PenilaianKinerja() {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm("Yakin ingin menghapus penilaian ini?")) return;
+    if (!window.confirm("Yakin ingin menghapus penilaian ini?")) {  // ✅ FIX
     try {
       const res = await fetch(`${API_URL}/penilaian-kinerja/${id}`, { method: "DELETE" });
       if (res.ok) {
