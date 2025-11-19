@@ -2,15 +2,14 @@
 
 Aplikasi web React untuk sistem manajemen yayasan.
 
-## 🚀 Tech Stack
+## 🚀 Quick Start
 
-- **React** v19.2
-- **React Router** v7.9
-- **Axios** v1.13
-- **Tailwind CSS** v3.4
-- **Chart.js** v4.5
+### Prerequisites
+- Node.js v18+
+- npm atau yarn
+- Backend API running di port 5100
 
-## 📦 Installation
+### Installation
 ```bash
 # Clone repository
 git clone https://github.com/syafariarigayo/yayasan-app.git
@@ -22,45 +21,81 @@ npm install
 # Setup environment
 cp .env.example .env
 
+# Edit .env sesuai kebutuhan
+# Minimal: REACT_APP_API_URL=http://localhost:5100
+
 # Run development server
 npm start
 ```
 
 Aplikasi berjalan di: **http://localhost:3000**
 
-## 🔧 Configuration
-
-Edit `.env`:
-```env
-REACT_APP_API_URL=http://localhost:5100
+## 📁 Project Structure
+```
+yayasan-app/
+├── public/
+├── src/
+│   ├── api/            # Axios config & API calls
+│   ├── components/     # Reusable components
+│   ├── config/         # Constants & configuration
+│   ├── layouts/        # Layout components (Dashboard, etc)
+│   ├── pages/          # Page components
+│   ├── utils/          # Helper functions
+│   ├── App.js          # Main app component
+│   └── index.js        # Entry point
+├── .env                # Environment variables (tidak di-commit)
+├── .env.example        # Template environment
+└── package.json
 ```
 
-## 📱 Features
+## 🎨 Features
 
 - ✅ Dashboard Overview
-- ✅ Data Karyawan
+- ✅ Manajemen Karyawan (CRUD)
 - ✅ Management Magang (3 bulan)
 - ✅ Penilaian Kinerja
 - ✅ Import Absensi (Excel)
-- ✅ Rekap Absensi
-- ✅ Penggajian Otomatis
-- ✅ Rekap Gaji Bulanan
+- ✅ Rekap Absensi & Gaji
 - ✅ Cetak Slip Gaji (PDF)
-- ✅ Pengaturan
+- ✅ Autentikasi JWT
 
-## 🎨 Pages
+## 🔐 Login Credentials
 
-- `/` - Dashboard
-- `/data-karyawan` - List karyawan
-- `/tambah-karyawan` - Form pendaftaran lengkap
-- `/magang` - Management magang
-- `/penilaian-kinerja` - Penilaian karyawan
-- `/import-absensi` - Upload Excel absensi
-- `/rekap-absensi` - Rekap kehadiran
-- `/penggajian` - Hitung gaji bulanan
-- `/rekap-gaji` - Daftar gaji
-- `/slip-gaji/:id` - Slip gaji detail
+Default admin:
+- Username: `admin`
+- Password: `123456`
+
+## 🛠️ Available Scripts
+```bash
+npm start      # Development mode
+npm build      # Production build
+npm test       # Run tests
+```
+
+## 📦 Dependencies
+
+- React 19.2
+- React Router 7.9
+- Axios 1.13
+- Tailwind CSS 3.4
+- Chart.js 4.5
+
+## 🌐 Environment Variables
+
+Lihat `.env.example` untuk daftar lengkap.
+
+## 🐛 Troubleshooting
+
+### Error: "Tidak bisa terhubung ke server"
+- Pastikan backend running di port 5100
+- Cek `REACT_APP_API_URL` di `.env`
+
+### Port 3000 sudah dipakai
+Jalankan di port lain:
+```bash
+PORT=3001 npm start
+```
 
 ## 📄 License
 
-MIT License
+MIT License - 2025
