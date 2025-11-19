@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import api from "../api/axios";  // ✅ Gunakan api instance, bukan axios langsung
+import api from "../api/axios";
 import { Link } from "react-router-dom";
 
 export default function RekapGaji() {
@@ -113,16 +113,17 @@ export default function RekapGaji() {
                     <td className="p-3">
                       <div className="flex gap-2 justify-center">
                         <Link 
-                          to={`/slip-gaji/${r.id}`}  {/* ✅ FIX: Pakai kurung kurawal */}
+                          to={`/slip-gaji/${r.id}`}
                           className="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-sm font-semibold"
                         >
                           Lihat Slip
                         </Link>
                         
-                          href={`http://localhost:5100/slip/download/${r.id}`}  {/* ✅ FIX: Pakai kurung kurawal + port 5100 */}
+                        <a
+                          href={`http://localhost:5100/slip/download/${r.id}`}
                           className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm font-semibold"
                           target="_blank"
-                          rel="noreferrer"  {/* ✅ FIX: Tambahkan rel="noreferrer" */}
+                          rel="noreferrer"
                         >
                           Download
                         </a>
