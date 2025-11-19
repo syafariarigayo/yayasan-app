@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../api/axios";  // ✅ Gunakan api instance, bukan axios langsung
 import { Link } from "react-router-dom";
 
 export default function RekapGaji() {
@@ -13,80 +13,129 @@ export default function RekapGaji() {
 
     setLoading(true);
     try {
-      const res = await axios.get(
-        `http://localhost:5000/rekap-gaji/bulanan?bulan=${bulan}&tahun=${tahun}`
+      const res = await api.get(
+        `/rekap-gaji/bulanan?bulan=${bulan}&tahun=${tahun}`
       );
       setRows(res.data || []);
     } catch (err) {
+      console.error(err);
       alert("Tidak bisa memuat rekap gaji");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
-    <div className="p-6 text-white">
-      <h1 className="text-2xl font-bold mb-4">Rekap Gaji Bulanan</h1>
+    <div className="min-h-screen bg-gray-900 text-white p-6">
+      <div className="max-w-7xl mx-auto">
+        
+        <h1 className="text-3xl font-bold mb-6">Rekap Gaji Bulanan</h1>
 
-      <div className="mb-4">
-        <select className="text-black p-2 mr-2" onChange={e => setBulan(e.target.value)}>
-          {[1,2,3,4,5,6,7,8,9,10,11,12].map((b) => (
-            <option key={b} value={b}>{b}</option>
-          ))}
-        </select>
+        <div className="bg-gray-800 rounded-lg p-4 mb-6">
+          <div className="flex items-center gap-4">
+            <div>
+              <label className="block text-sm mb-2">Bulan:</label>
+              <select 
+                className="text-black p-2 rounded" 
+                onChange={e => setBulan(e.target.value)}
+                value={bulan}
+              >
+                <option value="">-- Pilih Bulan --</option>
+                {[1,2,3,4,5,6,7,8,9,10,11,12].map((b) => (
+                  <option key={b} value={b}>
+                    {new Date(2025, b - 1).toLocaleString('id-ID', { month: 'long' })}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        <select className="text-black p-2" onChange={e => setTahun(e.target.value)}>
-          {[2023,2024,2025].map((t) => (
-            <option key={t} value={t}>{t}</option>
-          ))}
-        </select>
+            <div>
+              <label className="block text-sm mb-2">Tahun:</label>
+              <select 
+                className="text-black p-2 rounded" 
+                onChange={e => setTahun(e.target.value)}
+                value={tahun}
+              >
+                <option value="">-- Pilih Tahun --</option>
+                {[2023, 2024, 2025, 2026].map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+            </div>
 
-        <button onClick={loadRekap} className="bg-blue-600 px-4 py-2 ml-3 rounded">
-          {loading ? "Memuat..." : "Tampilkan"}
-        </button>
+            <div className="self-end">
+              <button 
+                onClick={loadRekap} 
+                className="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded font-semibold disabled:bg-gray-600"
+                disabled={loading}
+              >
+                {loading ? "Memuat..." : "Tampilkan"}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {rows.length === 0 && !loading && (
+          <div className="bg-gray-800 rounded-lg p-8 text-center text-gray-400">
+            Pilih bulan dan tahun, lalu klik Tampilkan
+          </div>
+        )}
+
+        {rows.length > 0 && (
+          <div className="bg-gray-800 rounded-lg overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-gray-700">
+                <tr>
+                  <th className="p-3 text-left">No</th>
+                  <th className="p-3 text-left">Nama</th>
+                  <th className="p-3 text-left">Jabatan</th>
+                  <th className="p-3 text-center">Hadir</th>
+                  <th className="p-3 text-center">Telat</th>
+                  <th className="p-3 text-center">Izin</th>
+                  <th className="p-3 text-center">Alpa</th>
+                  <th className="p-3 text-right">Total Gaji</th>
+                  <th className="p-3 text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((r, i) => (
+                  <tr key={i} className="border-t border-gray-700 hover:bg-gray-750">
+                    <td className="p-3">{i + 1}</td>
+                    <td className="p-3 font-semibold">{r.nama}</td>
+                    <td className="p-3">{r.jabatan}</td>
+                    <td className="p-3 text-center">{r.total_hadir}</td>
+                    <td className="p-3 text-center">{r.total_telat}</td>
+                    <td className="p-3 text-center">{r.total_izin}</td>
+                    <td className="p-3 text-center">{r.total_alpa}</td>
+                    <td className="p-3 text-right font-bold text-green-400">
+                      Rp {Number(r.total_gaji).toLocaleString('id-ID')}
+                    </td>
+                    <td className="p-3">
+                      <div className="flex gap-2 justify-center">
+                        <Link 
+                          to={`/slip-gaji/${r.id}`}  {/* ✅ FIX: Pakai kurung kurawal */}
+                          className="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-sm font-semibold"
+                        >
+                          Lihat Slip
+                        </Link>
+                        
+                          href={`http://localhost:5100/slip/download/${r.id}`}  {/* ✅ FIX: Pakai kurung kurawal + port 5100 */}
+                          className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm font-semibold"
+                          target="_blank"
+                          rel="noreferrer"  {/* ✅ FIX: Tambahkan rel="noreferrer" */}
+                        >
+                          Download
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
       </div>
-
-      <table className="w-full bg-gray-800">
-        <thead className="bg-gray-700">
-          <tr>
-            <th>Nama</th>
-            <th>Jabatan</th>
-            <th>Hadir</th>
-            <th>Telat</th>
-            <th>Izin</th>
-            <th>Alpa</th>
-            <th>Total Gaji</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r, i) => (
-            <tr key={i} className="border-b border-gray-700">
-              <td>{r.nama}</td>
-              <td>{r.jabatan}</td>
-              <td>{r.total_hadir}</td>
-              <td>{r.total_telat}</td>
-              <td>{r.total_izin}</td>
-              <td>{r.total_alpa}</td>
-              <td>Rp {Number(r.total_gaji).toLocaleString()}</td>
-
-              <td className="flex gap-2">
-                <Link to={`/slip-gaji/${r.id}`} className="px-3 py-1 bg-green-600 rounded">
-                  Lihat Slip
-                </Link>
-
-                <a
-                  href={`http://localhost:5000/slip/download/${r.id}`}
-                  className="px-3 py-1 bg-blue-600 rounded"
-                  target="_blank"
-                >
-                  Download
-                </a>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
     </div>
   );
 }
