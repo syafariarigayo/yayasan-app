@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 const API_URL = "http://localhost:5100";
 
@@ -34,12 +34,7 @@ export default function PenilaianKinerja() {
     status: "Draft"
   });
 
-  useEffect(() => {
-    loadData();
-    loadKaryawan();
-  }, [filter]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       const res = await fetch(`${API_URL}/penilaian-kinerja?bulan=${filter.bulan}&tahun=${filter.tahun}`);
       const json = await res.json();
@@ -47,9 +42,9 @@ export default function PenilaianKinerja() {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [filter.bulan, filter.tahun]);
 
-  const loadKaryawan = async () => {
+  const loadKaryawan = useCallback(async () => {
     try {
       const res = await fetch(`${API_URL}/karyawan?status_magang=LULUS`);
       const json = await res.json();
@@ -57,7 +52,12 @@ export default function PenilaianKinerja() {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadData();
+    loadKaryawan();
+  }, [loadData, loadKaryawan]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -114,7 +114,10 @@ export default function PenilaianKinerja() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Yakin ingin menghapus penilaian ini?")) {  // ✅ FIX
+    if (!window.confirm("Yakin ingin menghapus penilaian ini?")) {
+      return;
+    }
+    
     try {
       const res = await fetch(`${API_URL}/penilaian-kinerja/${id}`, { method: "DELETE" });
       if (res.ok) {
@@ -127,7 +130,10 @@ export default function PenilaianKinerja() {
   };
 
   const handleFinalisasi = async (id) => {
-    if (!confirm("Finalisasi penilaian? Data tidak bisa diubah setelah difinalisasi.")) return;
+    if (!window.confirm("Finalisasi penilaian? Data tidak bisa diubah setelah difinalisasi.")) {
+      return;
+    }
+    
     try {
       const res = await fetch(`${API_URL}/penilaian-kinerja/${id}/finalisasi`, { method: "POST" });
       if (res.ok) {
