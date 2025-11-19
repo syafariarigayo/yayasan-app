@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 const API_URL = "http://localhost:5100";
 
@@ -15,11 +15,7 @@ export default function ManagementMagang() {
     catatan: ""
   });
 
-  useEffect(() => {
-    loadData();
-  }, [filter]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
       const url = filter === "Semua" 
@@ -34,7 +30,11 @@ export default function ManagementMagang() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]);
+
+  useEffect(() => {
+    loadData();
+  }, [filter, loadData]);
 
   const hitungDurasi = (tanggalMulai) => {
     if (!tanggalMulai) return "-";
@@ -74,7 +74,7 @@ export default function ManagementMagang() {
   const handleVerifikasi = async () => {
     if (!selectedKaryawan) return;
     
-    if (!window.confirm(`Yakin ingin verifikasi ${selectedKaryawan.nama} sebagai ${formVerifikasi.hasil}?`)) {  // ✅ FIX
+    if (!window.confirm(`Yakin ingin verifikasi ${selectedKaryawan.nama} sebagai ${formVerifikasi.hasil}?`)) {
       return;
     }
     
