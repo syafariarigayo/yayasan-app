@@ -74,7 +74,7 @@ export default function ManagementMagang() {
   const handleVerifikasi = async () => {
     if (!selectedKaryawan) return;
     
-    if (!confirm(`Yakin ingin verifikasi ${selectedKaryawan.nama} sebagai ${formVerifikasi.hasil}?`)) {
+    if (!window.confirm(`Yakin ingin verifikasi ${selectedKaryawan.nama} sebagai ${formVerifikasi.hasil}?`)) {  // ✅ FIX
       return;
     }
     
