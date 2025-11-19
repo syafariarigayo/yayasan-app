@@ -1,79 +1,66 @@
-# Getting Started with Create React App
+# 🖥️ Yayasan Wakaf Cendekia - Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Aplikasi web React untuk sistem manajemen yayasan.
 
-## Available Scripts
+## 🚀 Tech Stack
 
-In the project directory, you can run:
+- **React** v19.2
+- **React Router** v7.9
+- **Axios** v1.13
+- **Tailwind CSS** v3.4
+- **Chart.js** v4.5
 
-### `npm start`
+## 📦 Installation
+```bash
+# Clone repository
+git clone https://github.com/syafariarigayo/yayasan-app.git
+cd yayasan-app
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+# Install dependencies
+npm install
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+# Setup environment
+cp .env.example .env
 
-### `npm test`
+# Run development server
+npm start
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Aplikasi berjalan di: **http://localhost:3000**
 
-### `npm run build`
+## 🔧 Configuration
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Edit `.env`:
+```env
+REACT_APP_API_URL=http://localhost:5100
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## 📱 Features
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- ✅ Dashboard Overview
+- ✅ Data Karyawan
+- ✅ Management Magang (3 bulan)
+- ✅ Penilaian Kinerja
+- ✅ Import Absensi (Excel)
+- ✅ Rekap Absensi
+- ✅ Penggajian Otomatis
+- ✅ Rekap Gaji Bulanan
+- ✅ Cetak Slip Gaji (PDF)
+- ✅ Pengaturan
 
-### `npm run eject`
+## 🎨 Pages
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- `/` - Dashboard
+- `/data-karyawan` - List karyawan
+- `/tambah-karyawan` - Form pendaftaran lengkap
+- `/magang` - Management magang
+- `/penilaian-kinerja` - Penilaian karyawan
+- `/import-absensi` - Upload Excel absensi
+- `/rekap-absensi` - Rekap kehadiran
+- `/penggajian` - Hitung gaji bulanan
+- `/rekap-gaji` - Daftar gaji
+- `/slip-gaji/:id` - Slip gaji detail
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 📄 License
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-
-
-## 📝 Update Log
-
-- 2025-11-19: Repository created
-- Project ini adalah sistem manajemen yayasan
-
-
-
+MIT License
