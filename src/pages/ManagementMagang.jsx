@@ -362,8 +362,8 @@ export default function ManagementMagang() {
                 </div>
                 
                 <div className="mt-2 text-sm">
-                  {formVerifikasi.nilai_akhir >= 80 && <span className="text-green-400">⭐ Sangat Baik</span>}
-                  {formVerifikasi.nilai_akhir >= 60 && formVerifikasi.nilai_akhir < 80 && <span className="text-blue-400">👍 Baik</span>}
+                  {formVerifikasi.nilai_akhir >= 90 && <span className="text-green-400">⭐ Sangat Baik</span>}
+                  {formVerifikasi.nilai_akhir >= 60 && formVerifikasi.nilai_akhir < 90 && <span className="text-blue-400">👍 Baik</span>}
                   {formVerifikasi.nilai_akhir >= 40 && formVerifikasi.nilai_akhir < 60 && <span className="text-yellow-400">⚠️ Cukup</span>}
                   {formVerifikasi.nilai_akhir < 40 && <span className="text-red-400">❌ Kurang</span>}
                 </div>
