@@ -24,9 +24,17 @@ export default function ManagementMagang() {
       
       const res = await fetch(url);
       const json = await res.json();
-      setData(json);
+      
+      // Pastikan data selalu array
+      if (Array.isArray(json)) {
+        setData(json);
+      } else {
+        console.error("API response is not an array:", json);
+        setData([]);
+      }
     } catch (err) {
       console.error(err);
+      setData([]);
     } finally {
       setLoading(false);
     }
@@ -113,10 +121,10 @@ export default function ManagementMagang() {
   };
 
   const stats = {
-    total: data.length,
-    berjalan: data.filter(d => d.status_magang === "Sedang Berjalan").length,
-    lulus: data.filter(d => d.status_magang === "Lulus").length,
-    tidakLulus: data.filter(d => d.status_magang === "Tidak Lulus").length
+    total: Array.isArray(data) ? data.length : 0,
+    berjalan: Array.isArray(data) ? data.filter(d => d.status_magang === "Sedang Berjalan").length : 0,
+    lulus: Array.isArray(data) ? data.filter(d => d.status_magang === "Lulus").length : 0,
+    tidakLulus: Array.isArray(data) ? data.filter(d => d.status_magang === "Tidak Lulus").length : 0
   };
 
   return (
@@ -194,7 +202,7 @@ export default function ManagementMagang() {
                       Loading...
                     </td>
                   </tr>
-                ) : data.length === 0 ? (
+                ) : !Array.isArray(data) || data.length === 0 ? (
                   <tr>
                     <td colSpan="9" className="p-8 text-center text-gray-500">
                       Tidak ada data magang
