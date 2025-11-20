@@ -35,22 +35,38 @@ export default function PenilaianKinerja() {
   });
 
   const loadData = useCallback(async () => {
+    setLoading(true);
     try {
       const res = await fetch(`${API_URL}/penilaian-kinerja?bulan=${filter.bulan}&tahun=${filter.tahun}`);
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
       const json = await res.json();
       setData(json);
     } catch (err) {
-      console.error(err);
+      console.error("Error loading data:", err);
+      alert("Gagal memuat data penilaian. Pastikan backend berjalan.");
+      setData([]);
+    } finally {
+      setLoading(false);
     }
   }, [filter.bulan, filter.tahun]);
 
   const loadKaryawan = useCallback(async () => {
     try {
       const res = await fetch(`${API_URL}/karyawan?status_magang=LULUS`);
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
       const json = await res.json();
       setKaryawan(json);
     } catch (err) {
-      console.error(err);
+      console.error("Error loading karyawan:", err);
+      setKaryawan([]);
     }
   }, []);
 
@@ -82,6 +98,12 @@ export default function PenilaianKinerja() {
   };
 
   const handleSubmit = async () => {
+    // ✅ FIX: Validate form
+    if (!form.karyawan_id) {
+      alert("Pilih karyawan terlebih dahulu!");
+      return;
+    }
+    
     setLoading(true);
     try {
       const url = editMode 
@@ -96,17 +118,19 @@ export default function PenilaianKinerja() {
         body: JSON.stringify(form)
       });
       
-      const result = await res.json();
-      
-      if (res.ok) {
-        alert(result.message);
-        setModalOpen(false);
-        resetForm();
-        loadData();
-      } else {
-        alert(result.message || "Gagal menyimpan");
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Gagal menyimpan");
       }
+      
+      const result = await res.json();
+      alert(result.message);
+      setModalOpen(false);
+      resetForm();
+      loadData();
+      
     } catch (err) {
+      console.error("Submit error:", err);
       alert("Error: " + err.message);
     } finally {
       setLoading(false);
@@ -114,34 +138,64 @@ export default function PenilaianKinerja() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Yakin ingin menghapus penilaian ini?")) {
-      return;
+    // ✅ FIX: Proper confirm dengan early return
+    const confirmed = window.confirm("Yakin ingin menghapus penilaian ini?");
+    
+    if (!confirmed) {
+      return; // Stop execution if user cancels
     }
     
+    setLoading(true);
+    
     try {
-      const res = await fetch(`${API_URL}/penilaian-kinerja/${id}`, { method: "DELETE" });
-      if (res.ok) {
-        alert("Penilaian berhasil dihapus");
-        loadData();
+      const res = await fetch(`${API_URL}/penilaian-kinerja/${id}`, { 
+        method: "DELETE" 
+      });
+      
+      if (!res.ok) {
+        throw new Error("Gagal menghapus");
       }
+      
+      alert("Penilaian berhasil dihapus");
+      loadData();
+      
     } catch (err) {
+      console.error("Delete error:", err);
       alert("Error: " + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleFinalisasi = async (id) => {
-    if (!window.confirm("Finalisasi penilaian? Data tidak bisa diubah setelah difinalisasi.")) {
-      return;
+    // ✅ FIX: Proper confirm dengan early return
+    const confirmed = window.confirm(
+      "Finalisasi penilaian? Data tidak bisa diubah setelah difinalisasi."
+    );
+    
+    if (!confirmed) {
+      return; // Stop execution if user cancels
     }
     
+    setLoading(true);
+    
     try {
-      const res = await fetch(`${API_URL}/penilaian-kinerja/${id}/finalisasi`, { method: "POST" });
-      if (res.ok) {
-        alert("Penilaian berhasil difinalisasi");
-        loadData();
+      const res = await fetch(`${API_URL}/penilaian-kinerja/${id}/finalisasi`, { 
+        method: "POST" 
+      });
+      
+      if (!res.ok) {
+        throw new Error("Gagal finalisasi");
       }
+      
+      alert("Penilaian berhasil difinalisasi");
+      loadData();
+      
     } catch (err) {
+      console.error("Finalisasi error:", err);
       alert("Error: " + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -184,7 +238,7 @@ export default function PenilaianKinerja() {
           </div>
           <button
             onClick={openAddModal}
-            className="bg-blue-600 px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold"
+            className="bg-blue-600 px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold transition-all"
           >
             + Tambah Penilaian
           </button>
@@ -244,7 +298,16 @@ export default function PenilaianKinerja() {
               </tr>
             </thead>
             <tbody>
-              {data.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan="6" className="p-8 text-center text-gray-500">
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
+                      Loading...
+                    </div>
+                  </td>
+                </tr>
+              ) : data.length === 0 ? (
                 <tr>
                   <td colSpan="6" className="p-8 text-center text-gray-500">
                     Belum ada data penilaian untuk periode ini
@@ -276,17 +339,22 @@ export default function PenilaianKinerja() {
                             <>
                               <button
                                 onClick={() => handleFinalisasi(item.id)}
-                                className="bg-green-600 px-3 py-1 rounded text-sm hover:bg-green-700"
+                                disabled={loading}
+                                className="bg-green-600 px-3 py-1 rounded text-sm hover:bg-green-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                               >
                                 Finalisasi
                               </button>
                               <button
                                 onClick={() => handleDelete(item.id)}
-                                className="bg-red-600 px-3 py-1 rounded text-sm hover:bg-red-700"
+                                disabled={loading}
+                                className="bg-red-600 px-3 py-1 rounded text-sm hover:bg-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                               >
                                 Hapus
                               </button>
                             </>
+                          )}
+                          {item.status === 'Final' && (
+                            <span className="text-sm text-gray-400">Sudah Final</span>
                           )}
                         </div>
                       </td>
@@ -319,12 +387,15 @@ export default function PenilaianKinerja() {
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block mb-2">Karyawan *</label>
+                  <label className="block mb-2">
+                    Karyawan *
+                    {!form.karyawan_id && <span className="text-red-400 text-xs ml-2">(Wajib)</span>}
+                  </label>
                   <select
                     name="karyawan_id"
                     value={form.karyawan_id}
                     onChange={handleChange}
-                    className="p-3 bg-gray-700 rounded w-full"
+                    className="p-3 bg-gray-700 rounded w-full border-2 border-gray-600 focus:border-blue-500 transition-all"
                   >
                     <option value="">Pilih Karyawan</option>
                     {karyawan.map(k => (
@@ -396,7 +467,10 @@ export default function PenilaianKinerja() {
                           type="number"
                           name={aspek.key}
                           value={form[aspek.key]}
-                          onChange={handleChange}
+                          onChange={(e) => {
+                            const val = Math.min(100, Math.max(0, parseInt(e.target.value) || 0));
+                            setForm({ ...form, [aspek.key]: val });
+                          }}
                           min="0"
                           max="100"
                           className="w-16 p-2 bg-gray-700 rounded text-center"
@@ -422,15 +496,18 @@ export default function PenilaianKinerja() {
 
               <div className="flex gap-3 pt-4">
                 <button
+                  type="button"
                   onClick={() => setModalOpen(false)}
-                  className="flex-1 bg-gray-700 py-3 rounded hover:bg-gray-600"
+                  disabled={loading}
+                  className="flex-1 bg-gray-700 py-3 rounded hover:bg-gray-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Batal
                 </button>
                 <button
+                  type="button"
                   onClick={handleSubmit}
                   disabled={loading || !form.karyawan_id}
-                  className="flex-1 bg-blue-600 py-3 rounded hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed"
+                  className="flex-1 bg-blue-600 py-3 rounded hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all"
                 >
                   {loading ? "Menyimpan..." : "Simpan Penilaian"}
                 </button>
