@@ -1,328 +1,215 @@
 import React, { useState, useEffect } from "react";
-
-const API_URL = "http://localhost:5100";
+import { useNavigate } from "react-router-dom";
+import axios from "../api/axios";
+import ModalTambahKaryawan from "../components/ModalTambahKaryawan";
 
 export default function DashboardOverview() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalKaryawan: 0,
-    karyawanLulus: 0,
     karyawanMagang: 0,
-    penilaianBulanIni: 0,
-    statusData: [],
-    jabatanData: []
+    karyawanTetap: 0,
+    totalUnit: 0
   });
-  
-  const [recentMagang, setRecentMagang] = useState([]);
-  const [recentPenilaian, setRecentPenilaian] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [modalTambahOpen, setModalTambahOpen] = useState(false);
 
   useEffect(() => {
-    loadDashboardData();
+    fetchStats();
   }, []);
 
-  const loadDashboardData = async () => {
-    setLoading(true);
-    
+  const fetchStats = async () => {
     try {
-      // Load summary stats
-      const resSum = await fetch(`${API_URL}/dashboard/summary`);
-      const summary = await resSum.json();
-      
-      // Load recent magang
-      const resMagang = await fetch(`${API_URL}/magang?hasil=Sedang Berjalan`);
-      const magang = await resMagang.json();
-      
-      // Load recent penilaian
-      const bulan = new Date().getMonth() + 1;
-      const tahun = new Date().getFullYear();
-      const resPenilaian = await fetch(`${API_URL}/penilaian-kinerja?bulan=${bulan}&tahun=${tahun}`);
-      const penilaian = await resPenilaian.json();
-      
-      setStats({
-        totalKaryawan: summary.total || 0,
-        karyawanLulus: summary.status?.find(s => s.status === "LULUS")?.jumlah || 0,
-        karyawanMagang: summary.status?.find(s => s.status === "MAGANG")?.jumlah || 0,
-        penilaianBulanIni: penilaian.length || 0,
-        statusData: summary.status || [],
-        jabatanData: summary.jabatan || []
-      });
-      
-      setRecentMagang(magang.slice(0, 5));
-      setRecentPenilaian(penilaian.slice(0, 5));
-      
-    } catch (err) {
-      console.error("Error loading dashboard:", err);
+      const response = await axios.get("/dashboard/summary");
+      setStats(response.data);
+    } catch (error) {
+      console.error("Error fetching stats:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const hitungSisaHari = (tanggalMulai) => {
-    if (!tanggalMulai) return "-";
-    const mulai = new Date(tanggalMulai);
-    const target = new Date(mulai);
-    target.setMonth(target.getMonth() + 3);
-    const sekarang = new Date();
-    const diffTime = target - sekarang;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays < 0) return "Telah Lewat";
-    if (diffDays === 0) return "Hari Ini";
-    return `${diffDays} hari`;
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading Dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="p-6 bg-gray-50 min-h-screen">
+      
+      {/* WELCOME */}
+      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg shadow-lg p-8 mb-6">
+        <h1 className="text-4xl font-bold mb-2">
+          Selamat Datang di Sistem Informasi Yayasan
+        </h1>
+        <p className="text-blue-100 text-lg">
+          Dashboard Admin - Kelola data karyawan dengan mudah
+        </p>
+      </div>
+
+      {/* STATS CARDS */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-4xl">👥</div>
+            <div className="text-blue-600 bg-blue-100 px-3 py-1 rounded-full text-sm font-semibold">
+              Total
+            </div>
+          </div>
+          <div className="text-3xl font-bold text-gray-800 mb-1">
+            {loading ? "..." : stats.totalKaryawan}
+          </div>
+          <div className="text-sm text-gray-600">Total Karyawan</div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-4xl">🎓</div>
+            <div className="text-orange-600 bg-orange-100 px-3 py-1 rounded-full text-sm font-semibold">
+              Magang
+            </div>
+          </div>
+          <div className="text-3xl font-bold text-gray-800 mb-1">
+            {loading ? "..." : stats.karyawanMagang}
+          </div>
+          <div className="text-sm text-gray-600">Sedang Magang</div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-4xl">✅</div>
+            <div className="text-green-600 bg-green-100 px-3 py-1 rounded-full text-sm font-semibold">
+              Tetap
+            </div>
+          </div>
+          <div className="text-3xl font-bold text-gray-800 mb-1">
+            {loading ? "..." : stats.karyawanTetap}
+          </div>
+          <div className="text-sm text-gray-600">Karyawan Tetap</div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-4xl">🏢</div>
+            <div className="text-purple-600 bg-purple-100 px-3 py-1 rounded-full text-sm font-semibold">
+              Unit
+            </div>
+          </div>
+          <div className="text-3xl font-bold text-gray-800 mb-1">
+            {loading ? "..." : (stats.totalUnit || 4)}
+          </div>
+          <div className="text-sm text-gray-600">Unit Kerja</div>
+        </div>
+      </div>
+
+      {/* QUICK ACTIONS */}
+      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">Quick Actions</h2>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          
+          {/* Tambah Karyawan - MODAL */}
+          <div 
+            onClick={() => setModalTambahOpen(true)}
+            className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-lg cursor-pointer hover:shadow-xl transition-all transform hover:scale-105"
+          >
+            <div className="text-5xl mb-3">➕</div>
+            <h3 className="text-lg font-bold">Tambah Karyawan</h3>
+            <p className="text-sm text-blue-100 mt-1">Daftar karyawan baru</p>
+          </div>
+
+          {/* Penilaian Kinerja */}
+          <div 
+            onClick={() => navigate("/penilaian-kinerja")}
+            className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-lg cursor-pointer hover:shadow-xl transition-all transform hover:scale-105"
+          >
+            <div className="text-5xl mb-3">⭐</div>
+            <h3 className="text-lg font-bold">Penilaian Kinerja</h3>
+            <p className="text-sm text-purple-100 mt-1">Nilai performa karyawan</p>
+          </div>
+
+          {/* Management Magang */}
+          <div 
+            onClick={() => navigate("/magang")}
+            className="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-6 rounded-lg cursor-pointer hover:shadow-xl transition-all transform hover:scale-105"
+          >
+            <div className="text-5xl mb-3">📚</div>
+            <h3 className="text-lg font-bold">Management Magang</h3>
+            <p className="text-sm text-orange-100 mt-1">Kelola karyawan magang</p>
+          </div>
+
+          {/* Import Absensi */}
+          <div 
+            onClick={() => navigate("/import-absensi")}
+            className="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-lg cursor-pointer hover:shadow-xl transition-all transform hover:scale-105"
+          >
+            <div className="text-5xl mb-3">📥</div>
+            <h3 className="text-lg font-bold">Import Absensi</h3>
+            <p className="text-sm text-green-100 mt-1">Upload data kehadiran</p>
+          </div>
+
+        </div>
+      </div>
+
+      {/* RECENT ACTIVITIES */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
-        {/* HEADER */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Dashboard Overview</h1>
-          <p className="text-gray-400">
-            {new Date().toLocaleDateString('id-ID', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}
-          </p>
-        </div>
-
-        {/* STATS CARDS */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          
-          <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg p-6 shadow-lg">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-blue-200 text-sm font-semibold">Total Karyawan</p>
-              <span className="text-3xl">👥</span>
-            </div>
-            <p className="text-4xl font-bold">{stats.totalKaryawan}</p>
-            <p className="text-blue-200 text-xs mt-2">Semua status</p>
+        {/* Karyawan Magang Aktif */}
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold text-gray-800">Karyawan Magang Aktif</h3>
+            <button 
+              onClick={() => navigate("/magang")}
+              className="text-blue-600 hover:text-blue-800 text-sm font-semibold"
+            >
+              Lihat Semua →
+            </button>
           </div>
-
-          <div className="bg-gradient-to-br from-green-600 to-green-800 rounded-lg p-6 shadow-lg">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-green-200 text-sm font-semibold">Karyawan Tetap</p>
-              <span className="text-3xl">✓</span>
-            </div>
-            <p className="text-4xl font-bold">{stats.karyawanLulus}</p>
-            <p className="text-green-200 text-xs mt-2">Status LULUS</p>
-          </div>
-
-          <div className="bg-gradient-to-br from-yellow-600 to-yellow-800 rounded-lg p-6 shadow-lg">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-yellow-200 text-sm font-semibold">Sedang Magang</p>
-              <span className="text-3xl">📚</span>
-            </div>
-            <p className="text-4xl font-bold">{stats.karyawanMagang}</p>
-            <p className="text-yellow-200 text-xs mt-2">Durasi 3 bulan</p>
-          </div>
-
-          <div className="bg-gradient-to-br from-purple-600 to-purple-800 rounded-lg p-6 shadow-lg">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-purple-200 text-sm font-semibold">Penilaian Bulan Ini</p>
-              <span className="text-3xl">⭐</span>
-            </div>
-            <p className="text-4xl font-bold">{stats.penilaianBulanIni}</p>
-            <p className="text-purple-200 text-xs mt-2">
-              {new Date().toLocaleString('id-ID', { month: 'long' })}
-            </p>
-          </div>
-
-        </div>
-
-        {/* CHARTS ROW */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          
-          {/* STATUS KARYAWAN */}
-          <div className="bg-gray-800 rounded-lg p-6">
-            <h3 className="text-xl font-bold mb-4">Status Karyawan</h3>
-            <div className="space-y-3">
-              {stats.statusData.map((item, idx) => {
-                const percentage = ((item.jumlah / stats.totalKaryawan) * 100).toFixed(1);
-                const colors = {
-                  "LULUS": "bg-green-600",
-                  "MAGANG": "bg-yellow-600"
-                };
-                return (
-                  <div key={idx}>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-sm font-semibold">{item.status || "Unknown"}</span>
-                      <span className="text-sm text-gray-400">{item.jumlah} ({percentage}%)</span>
-                    </div>
-                    <div className="w-full bg-gray-700 rounded-full h-3">
-                      <div 
-                        className={`${colors[item.status] || "bg-gray-600"} h-3 rounded-full transition-all`}
-                        style={{ width: `${percentage}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* DISTRIBUSI JABATAN */}
-          <div className="bg-gray-800 rounded-lg p-6">
-            <h3 className="text-xl font-bold mb-4">Distribusi Jabatan</h3>
-            <div className="space-y-3">
-              {stats.jabatanData.slice(0, 5).map((item, idx) => {
-                const percentage = ((item.jumlah / stats.totalKaryawan) * 100).toFixed(1);
-                return (
-                  <div key={idx}>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-sm font-semibold">{item.jabatan || "Tidak Ada"}</span>
-                      <span className="text-sm text-gray-400">{item.jumlah} ({percentage}%)</span>
-                    </div>
-                    <div className="w-full bg-gray-700 rounded-full h-3">
-                      <div 
-                        className="bg-blue-600 h-3 rounded-full transition-all"
-                        style={{ width: `${percentage}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-        </div>
-
-        {/* TABLES ROW */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          
-          {/* MAGANG AKTIF */}
-          <div className="bg-gray-800 rounded-lg p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold">Magang Aktif</h3>
-              <a href="/magang" className="text-blue-400 text-sm hover:underline">
-                Lihat Semua →
-              </a>
-            </div>
-            
-            {recentMagang.length === 0 ? (
-              <p className="text-center text-gray-500 py-8">Tidak ada magang aktif</p>
+          <div className="space-y-3">
+            {loading ? (
+              <div className="text-center py-8 text-gray-500">Memuat data...</div>
             ) : (
-              <div className="space-y-3">
-                {recentMagang.map((item) => (
-                  <div key={item.id} className="bg-gray-700 rounded-lg p-4 hover:bg-gray-650 transition">
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="flex-1">
-                        <p className="font-semibold">{item.nama}</p>
-                        <p className="text-sm text-gray-400">{item.unit_kerja || "Unit belum ditentukan"}</p>
-                      </div>
-                      <span className="text-xs bg-blue-900 text-blue-300 px-2 py-1 rounded">
-                        Aktif
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-xs text-gray-400">
-                      <span>
-                        Mulai: {item.magang_mulai 
-                          ? new Date(item.magang_mulai).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
-                          : "-"
-                        }
-                      </span>
-                      <span className="text-yellow-400 font-semibold">
-                        Sisa: {hitungSisaHari(item.magang_mulai)}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <>
+                <div className="text-center py-8 text-gray-500">
+                  <div className="text-4xl mb-2">📋</div>
+                  <p className="text-sm">Klik "Lihat Semua" untuk detail</p>
+                </div>
+              </>
             )}
           </div>
-
-          {/* PENILAIAN TERBARU */}
-          <div className="bg-gray-800 rounded-lg p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold">Penilaian Terbaru</h3>
-              <a href="/penilaian-kinerja" className="text-blue-400 text-sm hover:underline">
-                Lihat Semua →
-              </a>
-            </div>
-            
-            {recentPenilaian.length === 0 ? (
-              <p className="text-center text-gray-500 py-8">Belum ada penilaian bulan ini</p>
-            ) : (
-              <div className="space-y-3">
-                {recentPenilaian.map((item) => {
-                  const kategoriColors = {
-                    "Sangat Baik": "text-green-400",
-                    "Baik": "text-blue-400",
-                    "Cukup": "text-yellow-400",
-                    "Kurang": "text-orange-400",
-                    "Sangat Kurang": "text-red-400"
-                  };
-                  return (
-                    <div key={item.id} className="bg-gray-700 rounded-lg p-4 hover:bg-gray-650 transition">
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex-1">
-                          <p className="font-semibold">{item.nama}</p>
-                          <p className="text-sm text-gray-400">{item.jabatan}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-2xl font-bold text-blue-400">{item.nilai_akhir}</p>
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-center text-xs">
-                        <span className={`font-semibold ${kategoriColors[item.kategori]}`}>
-                          {item.kategori}
-                        </span>
-                        <span className={`px-2 py-1 rounded ${
-                          item.status === 'Final' 
-                            ? 'bg-green-900 text-green-300' 
-                            : 'bg-yellow-900 text-yellow-300'
-                        }`}>
-                          {item.status}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
         </div>
 
-        {/* QUICK ACTIONS */}
-        <div className="mt-8 bg-gray-800 rounded-lg p-6">
-          <h3 className="text-xl font-bold mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <a href="/tambah-karyawan" className="bg-blue-600 hover:bg-blue-700 rounded-lg p-4 text-center transition">
-              <span className="text-3xl block mb-2">➕</span>
-              <span className="font-semibold">Tambah Karyawan</span>
-            </a>
-            
-            <a href="/penilaian-kinerja" className="bg-purple-600 hover:bg-purple-700 rounded-lg p-4 text-center transition">
-              <span className="text-3xl block mb-2">⭐</span>
-              <span className="font-semibold">Penilaian Kinerja</span>
-            </a>
-            
-            <a href="/magang" className="bg-yellow-600 hover:bg-yellow-700 rounded-lg p-4 text-center transition">
-              <span className="text-3xl block mb-2">📚</span>
-              <span className="font-semibold">Management Magang</span>
-            </a>
-            
-            <a href="/import-absensi" className="bg-green-600 hover:bg-green-700 rounded-lg p-4 text-center transition">
-              <span className="text-3xl block mb-2">📊</span>
-              <span className="font-semibold">Import Absensi</span>
-            </a>
+        {/* Penilaian Terbaru */}
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold text-gray-800">Penilaian Kinerja Terbaru</h3>
+            <button 
+              onClick={() => navigate("/penilaian-kinerja")}
+              className="text-purple-600 hover:text-purple-800 text-sm font-semibold"
+            >
+              Lihat Semua →
+            </button>
+          </div>
+          <div className="space-y-3">
+            {loading ? (
+              <div className="text-center py-8 text-gray-500">Memuat data...</div>
+            ) : (
+              <>
+                <div className="text-center py-8 text-gray-500">
+                  <div className="text-4xl mb-2">⭐</div>
+                  <p className="text-sm">Klik "Lihat Semua" untuk detail</p>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
       </div>
+
+      {/* MODAL TAMBAH KARYAWAN */}
+      <ModalTambahKaryawan 
+        isOpen={modalTambahOpen}
+        onClose={() => setModalTambahOpen(false)}
+        onSuccess={() => {
+          fetchStats(); // Refresh stats
+          setModalTambahOpen(false);
+        }}
+      />
+
     </div>
   );
 }
