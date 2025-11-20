@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import DashboardOverview from "./pages/DashboardOverview";
 import DataKaryawan from "./pages/DataKaryawan";
-import TambahKaryawanLengkap from "./pages/TambahKaryawanLengkap";
 import EditKaryawan from "./pages/EditKaryawan";
 import ImportAbsensi from "./pages/ImportAbsensi";
 import RekapAbsensi from "./pages/RekapAbsensi";
@@ -29,7 +28,6 @@ export default function App() {
               <Routes>
                 <Route path="/" element={<DashboardOverview />} />
                 <Route path="/data-karyawan" element={<DataKaryawan />} />
-                <Route path="/tambah-karyawan" element={<TambahKaryawanLengkap />} />
                 <Route path="/edit/:id" element={<EditKaryawan />} />
                 
                 {/* ✅ ROUTES BARU */}
